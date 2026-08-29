@@ -1,0 +1,32 @@
+{
+  "count": 2,
+  "items": [
+    {
+      "source": "examples/input/tall.png",
+      "output": "examples/output/tall.webp",
+      "before": [
+        400,
+        800
+      ],
+      "after": [
+        250,
+        500
+      ],
+      "bytes": 362
+    },
+    {
+      "source": "examples/input/wide.jpg",
+      "output": "examples/output/wide.webp",
+      "before": [
+        1200,
+        600
+      ],
+      "after": [
+        500,
+        250
+      ],
+      "bytes": 294
+    }
+  ],
+  "contact_sheet": "examples/output/contact.jpg"
+}
