@@ -16,3 +16,6 @@ python image_batch_kit.py ./images --outdir ./output --max-px 1600 --format webp
 - 元/出力サイズ・容量のJSON manifest
 
 Python 3.10+ / Pillow / MIT License。
+- BOOTH 0円DL: https://amase-memo.booth.pm/items/8778724
+- 作者サイト: https://paper-daemon.github.io/
+
