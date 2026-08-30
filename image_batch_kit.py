@@ -52,7 +52,7 @@ def run(root,outdir,max_px=1600,fmt='webp',quality=88,sheet=None):
         raise ValueError('max_px must be >= 1')
     if not 1 <= quality <= 100:
         raise ValueError('quality must be between 1 and 100')
-    inputs=list(iter_images(root)); used_names=set(); planned=[]
+    inputs=list(iter_images(root)); used_names={p.name.lower() for p in outdir.iterdir()} if outdir.exists() else set(); planned=[]
     ext='jpg' if fmt.lower() in {'jpg','jpeg'} else fmt.lower()
     for src in inputs:
         base=src.stem; name=f'{base}.{ext}'; n=2
