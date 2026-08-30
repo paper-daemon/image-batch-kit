@@ -45,11 +45,14 @@ def contact_sheet(records,path,thumb=260,cols=4):
     return str(path)
 
 def run(root,outdir,max_px=1600,fmt='webp',quality=88,sheet=None):
+    root=Path(root); outdir=Path(outdir)
+    if root.is_dir() and root.resolve() == outdir.resolve(strict=False):
+        raise ValueError('outdir must differ from input directory to avoid reprocessing generated images')
     if max_px < 1:
         raise ValueError('max_px must be >= 1')
     if not 1 <= quality <= 100:
         raise ValueError('quality must be between 1 and 100')
-    inputs=list(iter_images(root)); outdir=Path(outdir); used_names=set(); planned=[]
+    inputs=list(iter_images(root)); used_names=set(); planned=[]
     ext='jpg' if fmt.lower() in {'jpg','jpeg'} else fmt.lower()
     for src in inputs:
         base=src.stem; name=f'{base}.{ext}'; n=2
