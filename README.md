@@ -20,6 +20,8 @@ python image_batch_kit.py ./images --outdir ./output --max-px 1600 --format webp
 
 フォルダを入力にする場合、`--outdir` は入力フォルダとは別の場所を指定してください。同じフォルダを出力先にすると、前回生成したWebP等を次回入力として再取り込みできてしまうため、現在は処理開始前にエラーで停止します。
 
+`--json` のreport pathも、元画像・変換後画像・contact sheetと同じ実体pathにはできません。衝突する指定は画像処理前に拒否し、画像をJSONで上書きしません。
+
 ```bash
 python3 -m unittest -v tests.test_image_batch_kit
 ```
