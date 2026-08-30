@@ -49,4 +49,14 @@ class T(unittest.TestCase):
             run(src,src,100,'webp',85)
         self.assertEqual(sorted(p.name for p in src.iterdir()),['photo.jpg'])
 
+    def test_preexisting_output_is_preserved_and_next_name_is_used(self):
+        src=Path(tempfile.mkdtemp()); out=Path(tempfile.mkdtemp())
+        Image.new('RGB',(120,60),'red').save(src/'photo.jpg')
+        existing=out/'photo.webp'; Image.new('RGB',(20,20),'blue').save(existing)
+        before=existing.read_bytes()
+        r=run(src,out,100,'webp',85)
+        self.assertEqual(existing.read_bytes(),before,'an existing output is never overwritten')
+        self.assertEqual(Path(r['items'][0]['output']).name,'photo-2.webp')
+        self.assertTrue((out/'photo-2.webp').exists())
+
 if __name__=='__main__': unittest.main()
