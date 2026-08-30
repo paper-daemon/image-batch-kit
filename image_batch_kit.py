@@ -45,10 +45,27 @@ def contact_sheet(records,path,thumb=260,cols=4):
     return str(path)
 
 def run(root,outdir,max_px=1600,fmt='webp',quality=88,sheet=None):
-    records=[]; outdir=Path(outdir)
-    for src in iter_images(root):
-        dst=outdir/(src.stem+'.'+('jpg' if fmt.lower() in {'jpg','jpeg'} else fmt.lower()))
-        records.append(process_one(src,dst,max_px,fmt,quality))
+    if max_px < 1:
+        raise ValueError('max_px must be >= 1')
+    if not 1 <= quality <= 100:
+        raise ValueError('quality must be between 1 and 100')
+    inputs=list(iter_images(root)); outdir=Path(outdir); used_names=set(); planned=[]
+    ext='jpg' if fmt.lower() in {'jpg','jpeg'} else fmt.lower()
+    for src in inputs:
+        base=src.stem; name=f'{base}.{ext}'; n=2
+        while name.lower() in used_names:
+            name=f'{base}-{n}.{ext}'; n+=1
+        used_names.add(name.lower())
+        dst=outdir/name
+        if dst.resolve(strict=False) == src.resolve():
+            raise ValueError(f'output would overwrite source image: {src}')
+        planned.append((src,dst))
+    if sheet:
+        sheet_abs=Path(sheet).resolve(strict=False)
+        collisions={p.resolve(strict=False) for pair in planned for p in pair}
+        if sheet_abs in collisions:
+            raise ValueError('contact sheet path must not collide with source or converted output')
+    records=[process_one(src,dst,max_px,fmt,quality) for src,dst in planned]
     sheet_path=contact_sheet(records,sheet) if sheet else None
     return {'count':len(records),'items':records,'contact_sheet':sheet_path}
 def main():
