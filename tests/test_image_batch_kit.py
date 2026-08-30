@@ -59,4 +59,22 @@ class T(unittest.TestCase):
         self.assertEqual(Path(r['items'][0]['output']).name,'photo-2.webp')
         self.assertTrue((out/'photo-2.webp').exists())
 
+    def test_json_report_cannot_overwrite_source_or_generated_files(self):
+        src=Path(tempfile.mkdtemp()); out=Path(tempfile.mkdtemp())
+        source=src/'photo.jpg'; Image.new('RGB',(120,60),'red').save(source)
+        before=source.read_bytes()
+        with self.assertRaisesRegex(ValueError, 'json report path'):
+            run(src,out,100,'webp',85,None,source)
+        self.assertEqual(source.read_bytes(),before)
+        self.assertFalse((out/'photo.webp').exists())
+
+        with self.assertRaisesRegex(ValueError, 'json report path'):
+            run(src,out,100,'webp',85,None,out/'photo.webp')
+        self.assertFalse((out/'photo.webp').exists())
+
+        sheet=out/'sheet.jpg'
+        with self.assertRaisesRegex(ValueError, 'json report path'):
+            run(src,out,100,'webp',85,sheet,sheet)
+        self.assertFalse(sheet.exists())
+
 if __name__=='__main__': unittest.main()
