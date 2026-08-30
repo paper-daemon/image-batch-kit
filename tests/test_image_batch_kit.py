@@ -30,7 +30,7 @@ class T(unittest.TestCase):
         src=Path(tempfile.mkdtemp())
         Image.new('RGB',(1200,600),'red').save(src/'photo.jpg')
         before=(src/'photo.jpg').read_bytes()
-        with self.assertRaisesRegex(ValueError, 'overwrite source image'):
+        with self.assertRaisesRegex(ValueError, 'outdir must differ'):
             run(src,src,300,'jpg',70)
         self.assertEqual((src/'photo.jpg').read_bytes(),before)
 
@@ -41,5 +41,12 @@ class T(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, 'max_px'):
             run(src,out,0,'webp',85)
+
+    def test_same_directory_webp_rerun_is_blocked_before_output(self):
+        src=Path(tempfile.mkdtemp())
+        Image.new('RGB',(100,50),'white').save(src/'photo.jpg')
+        with self.assertRaisesRegex(ValueError, 'avoid reprocessing generated images'):
+            run(src,src,100,'webp',85)
+        self.assertEqual(sorted(p.name for p in src.iterdir()),['photo.jpg'])
 
 if __name__=='__main__': unittest.main()
