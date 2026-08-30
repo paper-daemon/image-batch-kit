@@ -15,7 +15,13 @@ python image_batch_kit.py ./images --outdir ./output --max-px 1600 --format webp
 - 画像一覧のコンタクトシート生成
 - 元/出力サイズ・容量のJSON manifest
 
+## 入出力の境界
+フォルダを入力にする場合、`--outdir` は入力フォルダとは別の場所を指定してください。同じフォルダを出力先にすると、前回生成したWebP等を次回入力として再取り込みできてしまうため、現在は処理開始前にエラーで停止します。
+
+```bash
+python3 -m unittest -v tests.test_image_batch_kit
+```
+
 Python 3.10+ / Pillow / MIT License。
 - BOOTH 0円DL: https://amase-memo.booth.pm/items/8778724
 - 作者サイト: https://paper-daemon.github.io/
-
