@@ -44,7 +44,7 @@ def contact_sheet(records,path,thumb=260,cols=4):
     Path(path).parent.mkdir(parents=True,exist_ok=True); sheet.save(path,quality=90)
     return str(path)
 
-def run(root,outdir,max_px=1600,fmt='webp',quality=88,sheet=None):
+def run(root,outdir,max_px=1600,fmt='webp',quality=88,sheet=None,json_path=None):
     root=Path(root); outdir=Path(outdir)
     if root.is_dir() and root.resolve() == outdir.resolve(strict=False):
         raise ValueError('outdir must differ from input directory to avoid reprocessing generated images')
@@ -63,11 +63,18 @@ def run(root,outdir,max_px=1600,fmt='webp',quality=88,sheet=None):
         if dst.resolve(strict=False) == src.resolve():
             raise ValueError(f'output would overwrite source image: {src}')
         planned.append((src,dst))
-    if sheet:
-        sheet_abs=Path(sheet).resolve(strict=False)
-        collisions={p.resolve(strict=False) for pair in planned for p in pair}
-        if sheet_abs in collisions:
-            raise ValueError('contact sheet path must not collide with source or converted output')
+    source_paths={src.resolve() for src in inputs}
+    output_paths={dst.resolve(strict=False) for _,dst in planned}
+    sheet_abs=Path(sheet).resolve(strict=False) if sheet else None
+    if sheet_abs is not None and sheet_abs in source_paths | output_paths:
+        raise ValueError('contact sheet path must not collide with source or converted output')
+    if json_path:
+        json_abs=Path(json_path).resolve(strict=False)
+        collisions=source_paths | output_paths
+        if sheet_abs is not None:
+            collisions.add(sheet_abs)
+        if json_abs in collisions:
+            raise ValueError('json report path must not collide with source, converted output, or contact sheet')
     records=[process_one(src,dst,max_px,fmt,quality) for src,dst in planned]
     sheet_path=contact_sheet(records,sheet) if sheet else None
     return {'count':len(records),'items':records,'contact_sheet':sheet_path}
@@ -76,7 +83,7 @@ def main():
     ap.add_argument('input'); ap.add_argument('--outdir',default='output')
     ap.add_argument('--max-px',type=int,default=1600); ap.add_argument('--format',choices=['webp','jpg','png'],default='webp')
     ap.add_argument('--quality',type=int,default=88); ap.add_argument('--contact-sheet'); ap.add_argument('--json')
-    a=ap.parse_args(); report=run(a.input,a.outdir,a.max_px,a.format,a.quality,a.contact_sheet)
+    a=ap.parse_args(); report=run(a.input,a.outdir,a.max_px,a.format,a.quality,a.contact_sheet,a.json)
     if a.json: Path(a.json).write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
     print(f"images={report['count']} format={a.format} max_px={a.max_px} outdir={a.outdir}")
 
